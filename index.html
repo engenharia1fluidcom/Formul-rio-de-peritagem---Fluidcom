@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Formulário de Peritagem Técnica — Fluidcom</title>
+<!-- Bibliotecas para ZIP, PDF e captura -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-sizing: border-box; }
   :root{
@@ -32,6 +37,7 @@
   /* Topbar */
   .topbar{ background:var(--navy); border-bottom:4px solid var(--orange); }
   .topbar-inner{ max-width:880px; margin:0 auto; padding:16px 18px; display:flex; align-items:center; gap:18px; }
+  .topbar img{ height:40px; display:block; }
   .topbar-text h1{ font-size:16px; color:#fff; font-weight:700; letter-spacing:.02em; }
   .topbar-text p{ font-size:12px; color:#AEB7CE; margin:2px 0 0; }
 
@@ -91,6 +97,8 @@
   .btn-primary:hover{ box-shadow:0 4px 14px rgba(242,102,29,.35); }
   .btn-secondary{ background:#fff; color:var(--navy); border:1.5px solid var(--border); }
   .btn-secondary:hover{ border-color:var(--navy); }
+  .btn-success{ background:var(--green); color:#fff; }
+  .btn-success:hover{ box-shadow:0 4px 14px rgba(27,156,87,.35); }
   .btn-danger{ background:#fff; color:var(--red); border:1.5px solid #F3D2D2; }
   .btn-danger:hover{ background:#FDF0F0; }
   .btn-sm{ padding:7px 13px; font-size:12.5px; }
@@ -122,7 +130,7 @@
   .achado-thumb-full{ width:220px; height:auto; max-height:260px; object-fit:cover; border-radius:8px; border:1px solid var(--border); flex-shrink:0; background:#F0F1F5; }
   @media(max-width:640px){ .achado-thumb-full{ width:100%; max-height:220px; } .achado-card{ flex-direction:column; } }
   .achado-info{ flex:1; min-width:0; }
-  .achado-badge{ font-family:var(--mono); font-size:11px; background:var(--navy); color:#fff; padding:2px 8px; border-radius:50px; display:inline-block; margin-bottom:6px; }
+  .achado-badge{ font-family:var(--mono); font-size:11px; background:var(--navy); color:#fff; padding:2px 8px; border-radius:5px; display:inline-block; margin-bottom:6px; }
   .achado-title{ font-weight:700; color:var(--navy); margin-bottom:4px; font-size:15px; }
   .achado-desc{ color:var(--text); font-size:13.5px; line-height:1.5; white-space:pre-wrap; }
   .achado-time{ font-size:11px; color:var(--text-muted); font-family:var(--mono); margin-top:6px; }
@@ -148,50 +156,39 @@
 
   footer.appfoot{ text-align:center; font-size:11.5px; color:var(--text-muted); margin-top:30px; padding-bottom:10px; }
 
-  /* Print */
+  /* Print - agora só mostra o passo que tiver a classe 'print-active' */
   @media print{
-    #saveStatus, .stepper, .no-print, .report-meta, .resume-banner { display:none !important; }
-    body{ background:#fff; padding:0; margin:0; }
-    .container { max-width: 100%; width: 100%; padding: 0; margin: 0; }
-    
-    /* Garantir que a seção ativa de impressão apareça */
-    .step-section { display: none !important; }
-    .step-section.active { display: block !important; }
-    
-    /* Identificação */
-    #osSummaryStep3 { 
-      margin-bottom: 20px; 
-      border: 1px solid #ccc;
-      padding: 20px;
-      break-inside: avoid;
-    }
-    
-    /* Achados: Resto do documento sem cortes */
-    .achado-card { 
-      break-inside: avoid; 
-      border: 1px solid #ccc; 
-      margin-bottom: 20px;
-      page-break-inside: avoid;
-      flex-direction: column !important;
-      align-items: center;
-    }
-    
-    /* Imagem completa, sem cortes e mantendo proporção */
-    .achado-thumb-full {
-      width: 100% !important;
-      height: auto !important;
-      max-height: none !important;
-      object-fit: contain !important;
-      flex-shrink: 0;
-    }
-    /* Garantir que a imagem não ultrapasse a largura */
-    .achado-card img {
-      max-width: 100% !important;
-      height: auto !important;
-    }
-    
-    .panel { box-shadow:none; border:1px solid #ccc; break-inside:avoid; }
-    .topbar { break-inside:avoid; }
+    #saveStatus, .stepper, .no-print{ display:none !important; }
+    body{ background:#fff; padding-bottom:0; }
+    .panel{ box-shadow:none; border:1px solid #ccc; break-inside:avoid; }
+    .achado-card{ break-inside:avoid; border:1px solid #ccc; }
+    .topbar{ break-inside:avoid; }
+    .step-section{ display:none !important; }
+    .step-section.print-active{ display:block !important; }
+    .btn-row, .btn-row-end { display: none !important; }
+    .report-meta .stat { border: 1px solid #ccc; }
+  }
+
+  /* Estilo para o PDF gerado via html2canvas */
+  #pdfCaptureArea {
+    background: #fff;
+    padding: 20px;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  #pdfCaptureArea .os-summary {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+  #pdfCaptureArea .achado-card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+    break-inside: avoid;
+  }
+  #pdfCaptureArea .report-meta .stat {
+    box-shadow: none;
+    border: 1px solid #ddd;
   }
 </style>
 </head>
@@ -201,6 +198,7 @@
 
   <div class="topbar">
     <div class="topbar-inner">
+      <img src="data:image/jpeg;base64,__LOGO_BASE64__" alt="Fluidcom">
       <div class="topbar-text">
         <h1>Formulário de Peritagem Técnica</h1>
         <p>Comércio e Serviços Hidráulicos — uso offline, sem necessidade de internet</p>
@@ -313,7 +311,7 @@
               <label class="required">Imagem do Achado</label>
               <div class="imgdrop" id="imgDropArea">
                 <div class="imgdrop-label" id="imgDropLabel">📷 Toque para selecionar ou tirar uma foto (máx. 10 MB)</div>
-                <input type="file" id="achado-imagem" accept="image/*">
+                <input type="file" id="achado-imagem" accept="image/*" capture="environment">
               </div>
               <div id="achadoPreviewWrap">
                 <img id="achadoPreviewImg" src="" alt="Pré-visualização">
@@ -363,6 +361,9 @@
       <div class="btn-row no-print">
         <button class="btn btn-secondary" id="btnBackTo2">← Voltar aos Achados</button>
         <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+          <!-- NOVO BOTÃO PARA RELATÓRIO COMPLETO (PDF + IMAGENS) -->
+          <button class="btn btn-success" id="btnFullReport">📦 Baixar Relatório Completo (PDF + Imagens)</button>
+          <button class="btn btn-secondary" id="btnDownloadImages">📥 Baixar Imagens (ZIP)</button>
           <button class="btn btn-secondary" id="btnExportJSON">⬇ Backup (.json)</button>
           <button class="btn btn-secondary" id="btnImportJSONTrigger">📤 Restaurar Backup</button>
           <input type="file" id="importJSONInput" accept="application/json" style="display:none;">
@@ -792,7 +793,7 @@
   /* ---------------- Achados list rendering ---------------- */
   function renderAchadosList(containerId, fullView){
     var container = document.getElementById(containerId);
-    if(document.getElementById('achadoCountStep2')) document.getElementById('achadoCountStep2').textContent = achados.length;
+    document.getElementById('achadoCountStep2') && (document.getElementById('achadoCountStep2').textContent = achados.length);
 
     if(achados.length === 0){
       container.innerHTML = '<div class="empty-note">Nenhum achado registrado até o momento. Use o formulário acima para adicionar fotos e descrições dos problemas encontrados.</div>';
@@ -841,7 +842,132 @@
   });
   document.getElementById('btnBackTo2').addEventListener('click', function(){ goToStep(2); });
 
-  /* ---------------- Export / Import / Print / New report ---------------- */
+  /* ---------- BOTÃO IMPRIMIR CORRIGIDO ---------- */
+  document.getElementById('btnPrint').addEventListener('click', function(){
+    document.getElementById('step3').classList.add('print-active');
+    window.print();
+  });
+  window.onafterprint = function(){
+    document.querySelectorAll('.step-section').forEach(function(el){
+      el.classList.remove('print-active');
+    });
+  };
+  /* ---------------------------------------------- */
+
+  /* ---------- NOVO BOTÃO: RELATÓRIO COMPLETO (PDF + IMAGENS) ---------- */
+  document.getElementById('btnFullReport').addEventListener('click', function(){
+    if (achados.length === 0) {
+      showToast('Nenhum achado registrado. Adicione pelo menos um achado com imagem.', 'error');
+      return;
+    }
+    if (!currentOS) {
+      showToast('Identificação da OS não encontrada.', 'error');
+      return;
+    }
+
+    setSaveStatus('saving', 'Gerando relatório completo...');
+    showToast('Gerando PDF e compactando... Aguarde.', 'success');
+
+    // 1. Capturar a área do relatório (passo 3)
+    var captureEl = document.getElementById('step3');
+    // Clona o conteúdo para evitar interferências visuais durante a captura
+    var clone = captureEl.cloneNode(true);
+    // Remove botões e elementos de ação do clone
+    clone.querySelectorAll('.btn, .btn-row, .achado-actions').forEach(function(el){ el.remove(); });
+    // Cria um contêiner temporário invisível para renderizar o clone
+    var wrapper = document.createElement('div');
+    wrapper.style.position = 'absolute';
+    wrapper.style.left = '-9999px';
+    wrapper.style.top = '0';
+    wrapper.style.width = '800px';
+    wrapper.style.background = '#fff';
+    wrapper.style.padding = '20px';
+    wrapper.appendChild(clone);
+    document.body.appendChild(wrapper);
+
+    // Aguarda um pequeno delay para a renderização
+    setTimeout(function(){
+      html2canvas(wrapper, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        width: 800,
+        logging: false
+      }).then(function(canvas){
+        // Remove o wrapper temporário
+        document.body.removeChild(wrapper);
+
+        // 2. Criar o PDF com jsPDF
+        var imgData = canvas.toDataURL('image/jpeg', 0.92);
+        var pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+        var pdfWidth = 210;
+        var pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        var pageHeight = 297;
+        var y = 0;
+
+        // Adiciona a imagem do relatório no PDF (pode quebrar em várias páginas)
+        while (y < pdfHeight) {
+          pdf.addImage(imgData, 'JPEG', 0, y, pdfWidth, pdfHeight);
+          y += pageHeight;
+          if (y < pdfHeight) {
+            pdf.addPage();
+          }
+        }
+
+        var pdfBlob = pdf.output('blob');
+
+        // 3. Criar ZIP com o PDF e as imagens originais
+        var zip = new JSZip();
+        var numero = (currentOS && currentOS.numero) ? currentOS.numero.replace(/[^a-zA-Z0-9-_]/g,'') : 'sem_numero';
+        var dataStr = (currentOS && currentOS.data) ? currentOS.data : todayISO();
+        var baseName = 'Relatorio_Peritagem_OS' + numero + '_' + dataStr;
+
+        // Adiciona o PDF
+        zip.file(baseName + '.pdf', pdfBlob);
+
+        // Adiciona as imagens
+        var imageCount = 0;
+        achados.forEach(function(a, idx){
+          var dataUrl = a.imagemData;
+          if (!dataUrl) return;
+          var parts = dataUrl.split(',');
+          if (parts.length !== 2) return;
+          var mimeType = parts[0].match(/:(.*?);/)[1];
+          var ext = mimeType === 'image/jpeg' ? 'jpg' : (mimeType === 'image/png' ? 'png' : 'img');
+          var base64Data = parts[1];
+          var titulo = a.titulo || 'sem_titulo';
+          var nomeBase = titulo.replace(/[^a-zA-Z0-9á-üÁ-Ü\-_ ]/g, '').trim().replace(/\s+/g, '_');
+          if (nomeBase.length === 0) nomeBase = 'achado_' + (idx+1);
+          var filename = 'Imagens/' + nomeBase + '.' + ext;
+          zip.file(filename, base64Data, { base64: true });
+          imageCount++;
+        });
+
+        // Gera o ZIP final e baixa
+        zip.generateAsync({ type: 'blob' })
+          .then(function(zipBlob){
+            saveAs(zipBlob, baseName + '.zip');
+            setSaveStatus('idle', 'Relatório completo baixado');
+            showToast('Relatório completo (PDF + ' + imageCount + ' imagens) baixado com sucesso!', 'success');
+          })
+          .catch(function(err){
+            console.error(err);
+            showToast('Erro ao gerar o arquivo ZIP final.', 'error');
+            setSaveStatus('idle', 'Erro');
+          });
+
+      }).catch(function(err){
+        console.error(err);
+        document.body.removeChild(wrapper);
+        showToast('Erro ao capturar o relatório para PDF.', 'error');
+        setSaveStatus('idle', 'Erro');
+      });
+    }, 500);
+  });
+  /* ----------------------------------------------------- */
+
+  /* ---------------- Export / Import / New report ---------------- */
   document.getElementById('btnExportJSON').addEventListener('click', function(){
     var payload = { ordemServico: currentOS, achados: achados, exportadoEm: nowStamp(), versao: 1 };
     var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
@@ -902,10 +1028,6 @@
     e.target.value = '';
   });
 
-  document.getElementById('btnPrint').addEventListener('click', function(){
-    window.print();
-  });
-
   document.getElementById('btnNewReport').addEventListener('click', function(){
     if(!confirm('Iniciar um novo relatório apagará todos os dados da peritagem atual (identificação e achados). Deseja continuar?')) return;
     setSaveStatus('saving', 'Limpando...');
@@ -921,6 +1043,55 @@
       showToast('Novo relatório iniciado.', 'success');
       goToStep(1);
     }).catch(function(err){ console.error(err); showToast('Erro ao iniciar novo relatório.', 'error'); });
+  });
+
+  /* ---------- FUNÇÃO BAIXAR IMAGENS ZIP (mantida) ---------- */
+  document.getElementById('btnDownloadImages').addEventListener('click', function(){
+    if (achados.length === 0) {
+      showToast('Nenhuma imagem para baixar. Adicione achados com fotos primeiro.', 'error');
+      return;
+    }
+
+    var zip = new JSZip();
+    var count = 0;
+
+    achados.forEach(function(a, idx){
+      var dataUrl = a.imagemData;
+      if (!dataUrl) return;
+      var parts = dataUrl.split(',');
+      if (parts.length !== 2) return;
+      var mimeType = parts[0].match(/:(.*?);/)[1];
+      var ext = mimeType === 'image/jpeg' ? 'jpg' : (mimeType === 'image/png' ? 'png' : 'img');
+      var base64Data = parts[1];
+      
+      var titulo = a.titulo || 'sem_titulo';
+      var nomeBase = titulo.replace(/[^a-zA-Z0-9á-üÁ-Ü\-_ ]/g, '').trim().replace(/\s+/g, '_');
+      if (nomeBase.length === 0) nomeBase = 'achado_' + (idx+1);
+      var filename = nomeBase + '.' + ext;
+      
+      zip.file(filename, base64Data, { base64: true });
+      count++;
+    });
+
+    if (count === 0) {
+      showToast('Nenhuma imagem válida encontrada para exportar.', 'error');
+      return;
+    }
+
+    setSaveStatus('saving', 'Gerando ZIP...');
+    zip.generateAsync({ type: 'blob' })
+      .then(function(blob){
+        var numero = (currentOS && currentOS.numero) ? currentOS.numero.replace(/[^a-zA-Z0-9-_]/g,'') : 'sem_numero';
+        var dataStr = (currentOS && currentOS.data) ? currentOS.data : todayISO();
+        saveAs(blob, 'Imagens_Peritagem_OS' + numero + '_' + dataStr + '.zip');
+        setSaveStatus('idle', 'ZIP gerado');
+        showToast('ZIP com ' + count + ' imagem(ns) baixado com sucesso.', 'success');
+      })
+      .catch(function(err){
+        console.error(err);
+        showToast('Erro ao gerar o arquivo ZIP.', 'error');
+        setSaveStatus('idle', 'Erro');
+      });
   });
 
   /* ---------------- Init ---------------- */
