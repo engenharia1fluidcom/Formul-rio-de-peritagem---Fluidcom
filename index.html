@@ -8,154 +8,80 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-  * { box-sizing: border-box; margin: 0; }
-  body { font-family: -apple-system, sans-serif; background: #f5f6fa; padding: 20px; }
-  .container { max-width: 880px; margin: auto; }
-  .topbar { background: #14213D; color: #fff; padding: 16px; border-bottom: 4px solid #F2661D; }
-  .topbar h1 { font-size: 18px; }
-  .stepper { display: flex; justify-content: space-between; max-width: 520px; margin: 20px auto; }
-  .step-item { display: flex; flex-direction: column; align-items: center; }
-  .step-circle { width: 40px; height: 40px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-  .step-item.active .step-circle { background: #F2661D; color: #fff; }
-  .step-item.completed .step-circle { background: #1B9C57; color: #fff; }
-  .panel { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-  .section-header { background: #F2661D; color: #fff; padding: 12px 18px; border-radius: 10px 10px 0 0; font-weight: bold; }
-  .card { padding: 20px; }
-  .field { margin-bottom: 16px; }
-  label { font-weight: 700; display: block; margin-bottom: 4px; }
-  input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-  @media (max-width: 600px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
-  .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-  .btn-primary { background: #F2661D; color: #fff; }
-  .btn-secondary { background: #eee; color: #333; }
-  .btn-success { background: #1B9C57; color: #fff; }
-  .btn-danger { background: #D64545; color: #fff; }
-  .btn-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-  .btn-row-end { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
-  .achado-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 14px; margin-bottom: 12px; display: flex; gap: 16px; align-items: flex-start; }
-  .achado-thumb { width: 100px; height: auto; max-height: 150px; border-radius: 6px; background: #f0f0f0; object-fit: contain; flex-shrink: 0; }
-  .achado-thumb-full { width: 100%; max-width: 400px; height: auto; border-radius: 6px; background: #f0f0f0; object-fit: contain; flex-shrink: 0; }
-  .achado-info { flex: 1; min-width: 0; }
-  .achado-title { font-weight: 700; }
-  .empty-note { text-align: center; padding: 30px; color: #888; }
-  .imgdrop { border: 2px dashed #ccc; border-radius: 8px; padding: 18px; text-align: center; cursor: pointer; background: #fafafa; }
-  .imgdrop:hover { border-color: #F2661D; }
-  .imgdrop input { display: none; }
-  #achadoPreviewWrap { display: none; margin-top: 12px; text-align: center; }
-  #achadoPreviewWrap img { max-width: 100%; max-height: 260px; border-radius: 6px; border: 1px solid #ddd; }
-  .step-section { display: none; }
-  .step-section.active { display: block; }
-  .toast { position: fixed; bottom: 20px; right: 20px; background: #14213D; color: #fff; padding: 12px 20px; border-radius: 8px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; }
-  .toast.show { opacity: 1; }
-  .toast.success { background: #1B9C57; }
-  .toast.error { background: #D64545; }
-  #saveStatus { position: fixed; top: 10px; right: 10px; background: #fff; border: 1px solid #ddd; padding: 6px 14px; border-radius: 20px; font-size: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); z-index: 999; }
-  @media print {
-    .no-print { display: none !important; }
-    .step-section { display: none !important; }
-    .step-section.print-active { display: block !important; }
-    .achado-card { break-inside: avoid; }
-  }
-</style>
+<style>*{box-sizing:border-box;margin:0}body{font-family:-apple-system,sans-serif;background:#f5f6fa;padding:20px}.container{max-width:880px;margin:auto}.topbar{background:#14213D;color:#fff;padding:16px;border-bottom:4px solid #F2661D}.topbar h1{font-size:18px}.stepper{display:flex;justify-content:space-between;max-width:520px;margin:20px auto}.step-item{display:flex;flex-direction:column;align-items:center}.step-circle{width:40px;height:40px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-weight:700}.step-item.active .step-circle{background:#F2661D;color:#fff}.step-item.completed .step-circle{background:#1B9C57;color:#fff}.panel{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.1);margin-bottom:20px}.section-header{background:#F2661D;color:#fff;padding:12px 18px;border-radius:10px 10px 0 0;font-weight:700}.card{padding:20px}.field{margin-bottom:16px}label{font-weight:700;display:block;margin-bottom:4px}input,textarea,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}@media(max-width:600px){.grid-2,.grid-3{grid-template-columns:1fr}}.btn{padding:10px 20px;border:none;border-radius:6px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px}.btn-primary{background:#F2661D;color:#fff}.btn-secondary{background:#eee;color:#333}.btn-success{background:#1B9C57;color:#fff}.btn-danger{background:#D64545;color:#fff}.btn-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:10px}.btn-row-end{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}.achado-card{background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px;margin-bottom:12px;display:flex;gap:16px;align-items:flex-start}.achado-thumb{width:100px;height:auto;max-height:150px;border-radius:6px;background:#f0f0f0;object-fit:contain;flex-shrink:0}.achado-thumb-full{width:100%;max-width:400px;height:auto;border-radius:6px;background:#f0f0f0;object-fit:contain;flex-shrink:0}.achado-info{flex:1;min-width:0}.achado-title{font-weight:700}.empty-note{text-align:center;padding:30px;color:#888}.imgdrop{border:2px dashed #ccc;border-radius:8px;padding:18px;text-align:center;cursor:pointer;background:#fafafa}.imgdrop:hover{border-color:#F2661D}.imgdrop input{display:none}#achadoPreviewWrap{display:none;margin-top:12px;text-align:center}#achadoPreviewWrap img{max-width:100%;max-height:260px;border-radius:6px;border:1px solid #ddd}.step-section{display:none}.step-section.active{display:block}.toast{position:fixed;bottom:20px;right:20px;background:#14213D;color:#fff;padding:12px 20px;border-radius:8px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:1000}.toast.show{opacity:1}.toast.success{background:#1B9C57}.toast.error{background:#D64545}#saveStatus{position:fixed;top:10px;right:10px;background:#fff;border:1px solid #ddd;padding:6px 14px;border-radius:20px;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);z-index:999}@media print{.no-print{display:none!important}.step-section{display:none!important}.step-section.print-active{display:block!important}.achado-card{break-inside:avoid}}</style>
 </head>
 <body>
 <div id="saveStatus">💾 Salvo</div>
 <div class="topbar"><div class="container"><h1>Fluidcom — Peritagem Técnica</h1></div></div>
 
 <div class="container">
+<div class="stepper">
+  <div class="step-item active" data-step="1"><div class="step-circle">1</div><span>Identificação</span></div>
+  <div class="step-item" data-step="2"><div class="step-circle">2</div><span>Achados</span></div>
+  <div class="step-item" data-step="3"><div class="step-circle">3</div><span>Revisão</span></div>
+</div>
 
-  <div class="stepper">
-    <div class="step-item active" data-step="1"><div class="step-circle">1</div><span>Identificação</span></div>
-    <div class="step-item" data-step="2"><div class="step-circle">2</div><span>Achados</span></div>
-    <div class="step-item" data-step="3"><div class="step-circle">3</div><span>Revisão</span></div>
+<section class="step-section active" id="step1">
+  <div class="panel"><div class="section-header">Identificação da OS</div><div class="card">
+    <form id="osForm">
+      <div class="grid-3">
+        <div class="field"><label>Nº da OS *</label><input type="text" id="os-numero" required></div>
+        <div class="field"><label>Cliente *</label><input type="text" id="os-cliente" required></div>
+        <div class="field"><label>Data *</label><input type="date" id="os-data" required></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Equipamento *</label><input type="text" id="os-equipamento" required></div>
+        <div class="field"><label>TAG</label><input type="text" id="os-tag"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Fabricante</label><input type="text" id="os-fabricante"></div>
+        <div class="field"><label>Modelo</label><input type="text" id="os-modelo"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Tipo de Serviço</label><input type="text" id="os-tipoServico" value="Peritagem técnica"></div>
+        <div class="field"><label>Responsável *</label><input type="text" id="os-responsavel" required></div>
+      </div>
+      <div class="btn-row-end"><button type="submit" class="btn btn-primary">Salvar e Continuar →</button></div>
+    </form>
+  </div></div>
+</section>
+
+<section class="step-section" id="step2">
+  <div id="osSummaryStep2"></div>
+  <div class="panel"><div class="section-header">Registrar Achado</div><div class="card">
+    <form id="achadoForm">
+      <div class="field"><label>Imagem *</label><div class="imgdrop" id="imgDropArea"><span>📷 Toque para selecionar (máx. 10 MB)</span><input type="file" id="achado-imagem" accept="image/*" capture="environment"></div><div id="achadoPreviewWrap"><img id="achadoPreviewImg"><div id="achadoPreviewMeta"></div></div></div>
+      <div class="field"><label>Título *</label><input type="text" id="achado-titulo" required></div>
+      <div class="field"><label>Descrição *</label><textarea id="achado-descricao" rows="3" required></textarea></div>
+      <div class="btn-row-end"><button type="button" class="btn btn-secondary" id="achadoCancelBtn" style="display:none;">Cancelar</button><button type="submit" class="btn btn-primary" id="achadoSubmitBtn">+ Adicionar</button></div>
+    </form>
+  </div></div>
+  <h3>Achados (<span id="achadoCountStep2">0</span>)</h3>
+  <div id="achadosListStep2"></div>
+  <div class="btn-row"><button class="btn btn-secondary" id="btnBackTo1">← Editar OS</button><button class="btn btn-primary" id="btnGoTo3">Revisar Final →</button></div>
+</section>
+
+<section class="step-section" id="step3">
+  <div id="osSummaryStep3"></div>
+  <div class="report-meta" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+    <div class="stat" style="background:#fff;border:1px solid #ddd;padding:10px 16px;border-radius:8px;"><span id="metaCount">0</span> achados</div>
+    <div class="stat" style="background:#fff;border:1px solid #ddd;padding:10px 16px;border-radius:8px;"><span id="metaSize">0 KB</span> imagens</div>
+    <div class="stat" style="background:#fff;border:1px solid #ddd;padding:10px 16px;border-radius:8px;"><span id="metaDate">--</span></div>
   </div>
-
-  <!-- STEP 1 -->
-  <section class="step-section active" id="step1">
-    <div class="panel">
-      <div class="section-header">Identificação da OS</div>
-      <div class="card">
-        <form id="osForm">
-          <div class="grid-3">
-            <div class="field"><label>Nº da OS *</label><input type="text" id="os-numero" required></div>
-            <div class="field"><label>Cliente *</label><input type="text" id="os-cliente" required></div>
-            <div class="field"><label>Data *</label><input type="date" id="os-data" required></div>
-          </div>
-          <div class="grid-2">
-            <div class="field"><label>Equipamento *</label><input type="text" id="os-equipamento" required></div>
-            <div class="field"><label>TAG</label><input type="text" id="os-tag"></div>
-          </div>
-          <div class="grid-2">
-            <div class="field"><label>Fabricante</label><input type="text" id="os-fabricante"></div>
-            <div class="field"><label>Modelo</label><input type="text" id="os-modelo"></div>
-          </div>
-          <div class="grid-2">
-            <div class="field"><label>Tipo de Serviço</label><input type="text" id="os-tipoServico" value="Peritagem técnica"></div>
-            <div class="field"><label>Responsável *</label><input type="text" id="os-responsavel" required></div>
-          </div>
-          <div class="btn-row-end"><button type="submit" class="btn btn-primary">Salvar e Continuar →</button></div>
-        </form>
-      </div>
+  <div id="achadosListStep3"></div>
+  <div class="btn-row no-print">
+    <button class="btn btn-secondary" id="btnBackTo2">← Voltar</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-success" id="btnFullReport">📦 Relatório Completo (PDF+ZIP)</button>
+      <button class="btn btn-secondary" id="btnDownloadImages">📥 Baixar Imagens (ZIP)</button>
+      <button class="btn btn-secondary" id="btnExportJSON">⬇ Backup</button>
+      <button class="btn btn-secondary" id="btnImportJSONTrigger">📤 Restaurar</button>
+      <input type="file" id="importJSONInput" accept="application/json" style="display:none;">
+      <button class="btn btn-secondary" id="btnPrint">🖨 PDF</button>
+      <button class="btn btn-danger" id="btnNewReport">🆕 Novo</button>
     </div>
-  </section>
-
-  <!-- STEP 2 -->
-  <section class="step-section" id="step2">
-    <div id="osSummaryStep2"></div>
-    <div class="panel">
-      <div class="section-header">Registrar Achado</div>
-      <div class="card">
-        <form id="achadoForm">
-          <div class="field">
-            <label>Imagem *</label>
-            <div class="imgdrop" id="imgDropArea">
-              <span>📷 Toque para selecionar (máx. 10 MB)</span>
-              <input type="file" id="achado-imagem" accept="image/*" capture="environment">
-            </div>
-            <div id="achadoPreviewWrap"><img id="achadoPreviewImg"><div id="achadoPreviewMeta"></div></div>
-          </div>
-          <div class="field"><label>Título *</label><input type="text" id="achado-titulo" required></div>
-          <div class="field"><label>Descrição *</label><textarea id="achado-descricao" rows="3" required></textarea></div>
-          <div class="btn-row-end">
-            <button type="button" class="btn btn-secondary" id="achadoCancelBtn" style="display:none;">Cancelar</button>
-            <button type="submit" class="btn btn-primary" id="achadoSubmitBtn">+ Adicionar Achado</button>
-          </div>
-        </form>
-      </div>
-    </div>
-    <h3>Achados (<span id="achadoCountStep2">0</span>)</h3>
-    <div id="achadosListStep2"></div>
-    <div class="btn-row">
-      <button class="btn btn-secondary" id="btnBackTo1">← Editar OS</button>
-      <button class="btn btn-primary" id="btnGoTo3">Revisar Final →</button>
-    </div>
-  </section>
-
-  <!-- STEP 3 -->
-  <section class="step-section" id="step3">
-    <div id="osSummaryStep3"></div>
-    <div class="report-meta" style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px;">
-      <div class="stat" style="background:#fff; border:1px solid #ddd; padding:10px 16px; border-radius:8px;"><span id="metaCount">0</span> achados</div>
-      <div class="stat" style="background:#fff; border:1px solid #ddd; padding:10px 16px; border-radius:8px;"><span id="metaSize">0 KB</span> imagens</div>
-      <div class="stat" style="background:#fff; border:1px solid #ddd; padding:10px 16px; border-radius:8px;"><span id="metaDate">--</span></div>
-    </div>
-    <div id="achadosListStep3"></div>
-    <div class="btn-row no-print">
-      <button class="btn btn-secondary" id="btnBackTo2">← Voltar</button>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn btn-success" id="btnFullReport">📦 Relatório Completo (PDF+ZIP)</button>
-        <button class="btn btn-secondary" id="btnDownloadImages">📥 Baixar Imagens (ZIP)</button>
-        <button class="btn btn-secondary" id="btnExportJSON">⬇ Backup</button>
-        <button class="btn btn-secondary" id="btnImportJSONTrigger">📤 Restaurar</button>
-        <input type="file" id="importJSONInput" accept="application/json" style="display:none;">
-        <button class="btn btn-secondary" id="btnPrint">🖨 PDF</button>
-        <button class="btn btn-danger" id="btnNewReport">🆕 Novo</button>
-      </div>
-    </div>
-  </section>
+  </div>
+</section>
 </div>
 
 <div class="toast" id="toast"><span id="toastMsg"></span></div>
@@ -163,348 +89,47 @@
 <script>
 (function(){
   "use strict";
-
-  var currentOS = null;
-  var achados = [];
-  var editingId = null;
-  var pendingImage = null;
-  var pendingName = null;
-  var pendingSize = 0;
-  var nextId = 1;
-
-  function showToast(msg, type){
-    var t = document.getElementById('toast');
-    document.getElementById('toastMsg').textContent = msg;
-    t.className = 'toast show' + (type ? ' ' + type : '');
-    clearTimeout(window.toastTimer);
-    window.toastTimer = setTimeout(function(){ t.className = 'toast'; }, 2500);
-  }
-
-  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
-  function formatBytes(b){ if(!b) return '0 KB'; var kb=b/1024; return kb<1024 ? kb.toFixed(1)+' KB' : (kb/1024).toFixed(2)+' MB'; }
-  function formatDateBR(d){ if(!d) return '—'; var p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
-  function nowStamp(){ var d=new Date(); return d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR'); }
-  function todayISO(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-
-  // Função dedicada para atualizar a contagem de achados em todos os lugares
-  function updateAchadoCount(){
-    var count = achados.length;
-    var el2 = document.getElementById('achadoCountStep2');
-    if (el2) el2.textContent = count;
-    var elMeta = document.getElementById('metaCount');
-    if (elMeta) elMeta.textContent = count;
-  }
-
-  function goToStep(n){
-    document.querySelectorAll('.step-section').forEach(function(el){ el.classList.remove('active'); });
-    document.getElementById('step'+n).classList.add('active');
-    document.querySelectorAll('.step-item').forEach(function(el){
-      var s=parseInt(el.dataset.step);
-      el.classList.remove('active','completed');
-      if(s<n) el.classList.add('completed');
-      else if(s===n) el.classList.add('active');
-    });
-    if(n===2){ renderOSSummary('osSummaryStep2', false); renderAchados('achadosListStep2', false); }
-    if(n===3){ renderOSSummary('osSummaryStep3', true); renderAchados('achadosListStep3', true); updateMeta(); }
-    window.scrollTo(0,0);
-  }
-
-  function renderOSSummary(id, editable){
-    var el=document.getElementById(id);
-    if(!currentOS){ el.innerHTML=''; return; }
-    var html='<div class="os-summary" style="background:#fff;border:1px solid #ddd;padding:16px;border-radius:8px;margin-bottom:16px;">'+
-      '<h3 style="margin-bottom:8px;">OS '+(currentOS.numero||'—')+'</h3>'+
-      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">'+
-      '<div><span style="color:#888;font-size:11px;">Cliente</span><div>'+escapeHtml(currentOS.cliente||'—')+'</div></div>'+
-      '<div><span style="color:#888;font-size:11px;">Data</span><div>'+formatDateBR(currentOS.data)+'</div></div>'+
-      '<div><span style="color:#888;font-size:11px;">Equipamento</span><div>'+escapeHtml(currentOS.equipamento||'—')+'</div></div>'+
-      '<div><span style="color:#888;font-size:11px;">TAG</span><div>'+escapeHtml(currentOS.tag||'—')+'</div></div>'+
-      '<div><span style="color:#888;font-size:11px;">Fabricante</span><div>'+escapeHtml(currentOS.fabricante||'—')+'</div></div>'+
-      '<div><span style="color:#888;font-size:11px;">Modelo</span><div>'+escapeHtml(currentOS.modelo||'—')+'</div></div>'+
-      '<div><span style="color:#888;font-size:11px;">Tipo</span><div>'+escapeHtml(currentOS.tipoServico||'Peritagem')+'</div></div>'+
-      '<div><span style="color:#888;font-size:11px;">Responsável</span><div>'+escapeHtml(currentOS.responsavel||'—')+'</div></div>'+
-      '</div></div>';
-    el.innerHTML=html;
-  }
-
-  function renderAchados(containerId, fullView){
-    var el=document.getElementById(containerId);
-    updateAchadoCount(); // atualiza contagem ao renderizar
-    if(achados.length===0){ el.innerHTML='<div class="empty-note">Nenhum achado registrado.</div>'; return; }
-    var html='';
-    achados.forEach(function(a,i){
-      var cls = fullView ? 'achado-thumb-full' : 'achado-thumb';
-      html+='<div class="achado-card">'+
-        '<img class="'+cls+'" src="'+a.imagemData+'" alt="Achado" style="flex-shrink:0;">'+
-        '<div class="achado-info"><span class="achado-badge" style="background:#14213D;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;">#'+(i+1)+'</span>'+
-        '<div class="achado-title">'+escapeHtml(a.titulo)+'</div>'+
-        '<div class="achado-desc">'+escapeHtml(a.descricao)+'</div>'+
-        '<div style="font-size:11px;color:#888;margin-top:6px;">'+escapeHtml(a.criadoEm||'')+'</div>'+
-        '<div class="achado-actions no-print" style="margin-top:8px;display:flex;gap:6px;">'+
-        '<button class="btn btn-secondary btn-sm" onclick="window.__editAchado('+a.id+')">✎</button>'+
-        '<button class="btn btn-danger btn-sm" onclick="window.__removeAchado('+a.id+')">🗑</button>'+
-        '</div></div></div>';
-    });
-    el.innerHTML=html;
-  }
-
-  function updateMeta(){
-    updateAchadoCount(); // atualiza a contagem também aqui
-    var total=achados.reduce(function(s,a){ return s+(a.imagemTamanho||0); },0);
-    document.getElementById('metaSize').textContent=formatBytes(total);
-    document.getElementById('metaDate').textContent=nowStamp();
-  }
-
-  // OS Form
-  document.getElementById('osForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    var data={
-      numero: document.getElementById('os-numero').value.trim(),
-      cliente: document.getElementById('os-cliente').value.trim(),
-      data: document.getElementById('os-data').value,
-      equipamento: document.getElementById('os-equipamento').value.trim(),
-      tag: document.getElementById('os-tag').value.trim(),
-      fabricante: document.getElementById('os-fabricante').value.trim(),
-      modelo: document.getElementById('os-modelo').value.trim(),
-      tipoServico: document.getElementById('os-tipoServico').value.trim()||'Peritagem técnica',
-      responsavel: document.getElementById('os-responsavel').value.trim()
-    };
-    if(!data.numero || !data.cliente || !data.equipamento || !data.responsavel || !data.data){
-      showToast('Preencha todos os campos obrigatórios.', 'error');
-      return;
-    }
-    currentOS=data;
-    showToast('OS salva!', 'success');
-    goToStep(2);
-  });
-
-  document.getElementById('btnBackTo1').addEventListener('click', function(){ goToStep(1); });
-  document.getElementById('btnGoTo3').addEventListener('click', function(){ if(achados.length===0 && !confirm('Sem achados, continuar?')) return; goToStep(3); });
-  document.getElementById('btnBackTo2').addEventListener('click', function(){ goToStep(2); });
-
-  // Imagem
-  document.getElementById('imgDropArea').addEventListener('click', function(){ document.getElementById('achado-imagem').click(); });
-  document.getElementById('achado-imagem').addEventListener('change', function(e){
-    var file=e.target.files[0]; if(!file) return;
-    if(file.size>10*1024*1024){ showToast('Imagem > 10 MB', 'error'); return; }
-    var reader=new FileReader();
-    reader.onload=function(ev){
-      pendingImage=ev.target.result; pendingName=file.name; pendingSize=file.size;
-      document.getElementById('achadoPreviewImg').src=pendingImage;
-      document.getElementById('achadoPreviewMeta').textContent=file.name+' — '+formatBytes(file.size);
-      document.getElementById('achadoPreviewWrap').style.display='block';
-    };
-    reader.readAsDataURL(file);
-  });
-
-  function resetForm(){
-    document.getElementById('achadoForm').reset();
-    document.getElementById('achadoPreviewWrap').style.display='none';
-    pendingImage=null; pendingName=null; pendingSize=0;
-    editingId=null;
-    document.getElementById('achadoSubmitBtn').textContent='+ Adicionar Achado';
-    document.getElementById('achadoCancelBtn').style.display='none';
-  }
-  document.getElementById('achadoCancelBtn').addEventListener('click', resetForm);
-
-  document.getElementById('achadoForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    var titulo=document.getElementById('achado-titulo').value.trim();
-    var desc=document.getElementById('achado-descricao').value.trim();
-    if(!titulo || !desc){ showToast('Preencha título e descrição.', 'error'); return; }
-    if(!pendingImage){ showToast('Selecione uma imagem.', 'error'); return; }
-
-    var obj={ titulo:titulo, descricao:desc, imagemData:pendingImage, imagemNome:pendingName, imagemTamanho:pendingSize, criadoEm:nowStamp() };
-    if(editingId){
-      var idx=achados.findIndex(function(a){ return a.id===editingId; });
-      if(idx>-1){ achados[idx]=Object.assign({}, obj, {id:editingId}); }
-      showToast('Atualizado!', 'success');
-    }else{
-      obj.id=nextId++;
-      achados.push(obj);
-      showToast('Achado adicionado!', 'success');
-    }
-    resetForm();
-    renderAchados('achadosListStep2', false);
-    renderAchados('achadosListStep3', true);
-    updateMeta();
-    updateAchadoCount(); // garantia extra
-  });
-
-  window.__editAchado = function(id){
-    var a=achados.find(function(x){ return x.id===id; });
-    if(!a) return;
-    editingId=id;
-    document.getElementById('achado-titulo').value=a.titulo;
-    document.getElementById('achado-descricao').value=a.descricao;
-    pendingImage=a.imagemData; pendingName=a.imagemNome; pendingSize=a.imagemTamanho;
-    document.getElementById('achadoPreviewImg').src=a.imagemData;
-    document.getElementById('achadoPreviewMeta').textContent=(a.imagemNome||'imagem')+' — '+formatBytes(a.imagemTamanho);
-    document.getElementById('achadoPreviewWrap').style.display='block';
-    document.getElementById('achadoSubmitBtn').textContent='💾 Salvar';
-    document.getElementById('achadoCancelBtn').style.display='inline-flex';
-    goToStep(2);
-    document.getElementById('achadoForm').scrollIntoView({behavior:'smooth'});
-  };
-  window.__removeAchado = function(id){
-    if(!confirm('Remover?')) return;
-    achados=achados.filter(function(a){ return a.id!==id; });
-    renderAchados('achadosListStep2', false);
-    renderAchados('achadosListStep3', true);
-    updateMeta();
-    updateAchadoCount();
-    showToast('Removido', 'success');
-  };
-
-  // PDF + ZIP completo
-  document.getElementById('btnFullReport').addEventListener('click', function(){
-    if(achados.length===0 || !currentOS){ showToast('Adicione achados e complete a OS.', 'error'); return; }
-    showToast('Gerando relatório...', 'success');
-    var el=document.getElementById('step3');
-    var clone=el.cloneNode(true);
-    clone.querySelectorAll('.btn, .btn-row, .achado-actions, .no-print').forEach(function(el){ el.remove(); });
-    var wrapper=document.createElement('div');
-    wrapper.style.position='absolute'; wrapper.style.left='-9999px'; wrapper.style.top='0'; wrapper.style.width='800px'; wrapper.style.background='#fff'; wrapper.style.padding='20px';
-    wrapper.appendChild(clone);
-    document.body.appendChild(wrapper);
-    setTimeout(function(){
-      html2canvas(wrapper, {scale:2, useCORS:true, backgroundColor:'#fff', width:800, logging:false}).then(function(canvas){
-        document.body.removeChild(wrapper);
-        var imgData=canvas.toDataURL('image/jpeg', 0.92);
-        var pdf=new jspdf.jsPDF('p','mm','a4');
-        var pw=210, ph=(canvas.height*pw)/canvas.width;
-        var pageH=297, y=0;
-        while(y<pageH){ pdf.addImage(imgData,'JPEG',0,y,pw,ph); y+=pageH; if(y<pageH) pdf.addPage(); }
-        var pdfBlob=pdf.output('blob');
-        var zip=new JSZip();
-        var num=(currentOS.numero||'sem_numero').replace(/[^a-zA-Z0-9-_]/g,'');
-        var dt=currentOS.data||todayISO();
-        var base='Relatorio_Peritagem_OS'+num+'_'+dt;
-        zip.file(base+'.pdf', pdfBlob);
-        var imgCount=0;
-        achados.forEach(function(a,i){
-          var dataUrl=a.imagemData; if(!dataUrl) return;
-          var parts=dataUrl.split(','); if(parts.length!==2) return;
-          var mime=parts[0].match(/:(.*?);/)[1];
-          var ext=mime==='image/jpeg'?'jpg':(mime==='image/png'?'png':'img');
-          var titulo=(a.titulo||'sem_titulo').replace(/[^a-zA-Z0-9á-üÁ-Ü\-_ ]/g,'').trim().replace(/\s+/g,'_');
-          if(!titulo) titulo='achado_'+(i+1);
-          zip.file('Imagens/'+titulo+'.'+ext, parts[1], {base64:true});
-          imgCount++;
-        });
-        zip.generateAsync({type:'blob'}).then(function(zipBlob){
-          saveAs(zipBlob, base+'.zip');
-          showToast('Relatório completo baixado!', 'success');
-        });
-      }).catch(function(err){ showToast('Erro ao gerar PDF.', 'error'); });
-    }, 500);
-  });
-
-  // Botão baixar imagens ZIP
-  document.getElementById('btnDownloadImages').addEventListener('click', function(){
-    if(achados.length===0){ showToast('Sem imagens.', 'error'); return; }
-    var zip=new JSZip(); var count=0;
-    achados.forEach(function(a,i){
-      var dataUrl=a.imagemData; if(!dataUrl) return;
-      var parts=dataUrl.split(','); if(parts.length!==2) return;
-      var mime=parts[0].match(/:(.*?);/)[1];
-      var ext=mime==='image/jpeg'?'jpg':(mime==='image/png'?'png':'img');
-      var titulo=(a.titulo||'achado_'+i).replace(/[^a-zA-Z0-9á-üÁ-Ü\-_ ]/g,'').trim().replace(/\s+/g,'_');
-      if(!titulo) titulo='achado_'+(i+1);
-      zip.file(titulo+'.'+ext, parts[1], {base64:true});
-      count++;
-    });
-    if(count===0){ showToast('Nenhuma imagem válida.', 'error'); return; }
-    zip.generateAsync({type:'blob'}).then(function(blob){
-      var num=(currentOS&&currentOS.numero)?currentOS.numero.replace(/[^a-zA-Z0-9-_]/g,''):'sem_numero';
-      saveAs(blob,'Imagens_OS'+num+'.zip');
-      showToast(count+' imagens baixadas!', 'success');
-    });
-  });
-
-  // Export/Import JSON
-  document.getElementById('btnExportJSON').addEventListener('click', function(){
-    var payload={ordemServico:currentOS, achados:achados, exportadoEm:nowStamp()};
-    var blob=new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
-    var a=document.createElement('a');
-    var num=(currentOS&&currentOS.numero)?currentOS.numero.replace(/[^a-zA-Z0-9-_]/g,''):'sem_numero';
-    a.href=URL.createObjectURL(blob);
-    a.download='Peritagem_OS'+num+'.json';
-    a.click();
-    showToast('Backup baixado.', 'success');
-  });
-  document.getElementById('btnImportJSONTrigger').addEventListener('click', function(){
-    document.getElementById('importJSONInput').click();
-  });
-  document.getElementById('importJSONInput').addEventListener('change', function(e){
-    var file=e.target.files[0]; if(!file) return;
-    var reader=new FileReader();
-    reader.onload=function(ev){
-      try{ var data=JSON.parse(ev.target.result); }catch(err){ showToast('JSON inválido.', 'error'); return; }
-      if(!data.ordemServico){ showToast('Formato inválido.', 'error'); return; }
-      if(!confirm('Substituir dados atuais?')) return;
-      currentOS=data.ordemServico;
-      achados=data.achados||[];
-      nextId=achados.reduce(function(max,a){ return Math.max(max,a.id||0); },0)+1;
-      fillOSForm(currentOS);
-      renderAchados('achadosListStep2', false);
-      renderAchados('achadosListStep3', true);
-      updateMeta();
-      updateAchadoCount(); // atualiza contagem após restauração
-      showToast('Restaurado com sucesso!', 'success');
-      goToStep(3);
-    };
-    reader.readAsText(file);
-    e.target.value='';
-  });
-
-  function fillOSForm(os){
-    if(!os) return;
-    document.getElementById('os-numero').value=os.numero||'';
-    document.getElementById('os-cliente').value=os.cliente||'';
-    document.getElementById('os-data').value=os.data||'';
-    document.getElementById('os-equipamento').value=os.equipamento||'';
-    document.getElementById('os-tag').value=os.tag||'';
-    document.getElementById('os-fabricante').value=os.fabricante||'';
-    document.getElementById('os-modelo').value=os.modelo||'';
-    document.getElementById('os-tipoServico').value=os.tipoServico||'Peritagem técnica';
-    document.getElementById('os-responsavel').value=os.responsavel||'';
-  }
-
-  // Print
-  document.getElementById('btnPrint').addEventListener('click', function(){
-    document.getElementById('step3').classList.add('print-active');
-    window.print();
-  });
-  window.onafterprint=function(){
-    document.querySelectorAll('.step-section').forEach(function(el){ el.classList.remove('print-active'); });
-  };
-
-  // New report
-  document.getElementById('btnNewReport').addEventListener('click', function(){
-    if(!confirm('Apagar dados atuais?')) return;
-    currentOS=null; achados=[]; nextId=1;
-    document.getElementById('osForm').reset();
-    document.getElementById('os-data').value=todayISO();
-    document.getElementById('os-tipoServico').value='Peritagem técnica';
-    resetForm();
-    renderAchados('achadosListStep2', false);
-    renderAchados('achadosListStep3', true);
-    updateMeta();
-    updateAchadoCount();
-    goToStep(1);
-    showToast('Novo relatório iniciado.', 'success');
-  });
-
-  // Init
-  document.getElementById('os-data').value=todayISO();
+  var OS=null, achados=[], editId=null, pendImg=null, pendNome=null, pendTamanho=0, nextId=1;
+  function toast(m,t){var el=document.getElementById('toast');document.getElementById('toastMsg').textContent=m;el.className='toast show'+(t?' '+t:'');clearTimeout(window._tt);window._tt=setTimeout(function(){el.className='toast';},2500);}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+  function fmtB(b){if(!b)return'0 KB';var kb=b/1024;return kb<1024?kb.toFixed(1)+' KB':(kb/1024).toFixed(2)+' MB';}
+  function fmtD(d){if(!d)return'—';var p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+  function now(){var d=new Date();return d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR');}
+  function hoje(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function atualizarContagem(){var c=achados.length;var e2=document.getElementById('achadoCountStep2');if(e2)e2.textContent=c;var em=document.getElementById('metaCount');if(em)em.textContent=c;}
+  function ir(n){document.querySelectorAll('.step-section').forEach(function(el){el.classList.remove('active');});document.getElementById('step'+n).classList.add('active');document.querySelectorAll('.step-item').forEach(function(el){var s=parseInt(el.dataset.step);el.classList.remove('active','completed');if(s<n)el.classList.add('completed');else if(s===n)el.classList.add('active');});if(n===2){renderOS('osSummaryStep2');renderAchados('achadosListStep2');}if(n===3){renderOS('osSummaryStep3');renderAchados('achadosListStep3');meta();}window.scrollTo(0,0);}
+  function renderOS(id){var el=document.getElementById(id);if(!OS){el.innerHTML='';return;}el.innerHTML='<div class="os-summary" style="background:#fff;border:1px solid #ddd;padding:16px;border-radius:8px;margin-bottom:16px;"><h3 style="margin-bottom:8px;">OS '+(OS.numero||'—')+'</h3><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"><div><span style="color:#888;font-size:11px;">Cliente</span><div>'+esc(OS.cliente||'—')+'</div></div><div><span style="color:#888;font-size:11px;">Data</span><div>'+fmtD(OS.data)+'</div></div><div><span style="color:#888;font-size:11px;">Equipamento</span><div>'+esc(OS.equipamento||'—')+'</div></div><div><span style="color:#888;font-size:11px;">TAG</span><div>'+esc(OS.tag||'—')+'</div></div><div><span style="color:#888;font-size:11px;">Fabricante</span><div>'+esc(OS.fabricante||'—')+'</div></div><div><span style="color:#888;font-size:11px;">Modelo</span><div>'+esc(OS.modelo||'—')+'</div></div><div><span style="color:#888;font-size:11px;">Tipo</span><div>'+esc(OS.tipoServico||'Peritagem')+'</div></div><div><span style="color:#888;font-size:11px;">Responsável</span><div>'+esc(OS.responsavel||'—')+'</div></div></div></div>';}
+  function renderAchados(id,full){var el=document.getElementById(id);atualizarContagem();if(achados.length===0){el.innerHTML='<div class="empty-note">Nenhum achado registrado.</div>';return;}var html='';achados.forEach(function(a,i){var cls=full?'achado-thumb-full':'achado-thumb';html+='<div class="achado-card"><img class="'+cls+'" src="'+a.imagemData+'" alt="Achado" style="flex-shrink:0;"><div class="achado-info"><span class="achado-badge" style="background:#14213D;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;">#'+(i+1)+'</span><div class="achado-title">'+esc(a.titulo)+'</div><div class="achado-desc">'+esc(a.descricao)+'</div><div style="font-size:11px;color:#888;margin-top:6px;">'+esc(a.criadoEm||'')+'</div><div class="achado-actions no-print" style="margin-top:8px;display:flex;gap:6px;"><button class="btn btn-secondary btn-sm" onclick="window.__edit('+a.id+')">✎</button><button class="btn btn-danger btn-sm" onclick="window.__remove('+a.id+')">🗑</button></div></div></div>';});el.innerHTML=html;}
+  function meta(){atualizarContagem();var total=achados.reduce(function(s,a){return s+(a.imagemTamanho||0);},0);document.getElementById('metaSize').textContent=fmtB(total);document.getElementById('metaDate').textContent=now();}
+  function resetForm(){document.getElementById('achadoForm').reset();document.getElementById('achadoPreviewWrap').style.display='none';pendImg=null;pendNome=null;pendTamanho=0;editId=null;document.getElementById('achadoSubmitBtn').textContent='+ Adicionar';document.getElementById('achadoCancelBtn').style.display='none';}
+  function fillOS(o){if(!o)return;document.getElementById('os-numero').value=o.numero||'';document.getElementById('os-cliente').value=o.cliente||'';document.getElementById('os-data').value=o.data||'';document.getElementById('os-equipamento').value=o.equipamento||'';document.getElementById('os-tag').value=o.tag||'';document.getElementById('os-fabricante').value=o.fabricante||'';document.getElementById('os-modelo').value=o.modelo||'';document.getElementById('os-tipoServico').value=o.tipoServico||'Peritagem técnica';document.getElementById('os-responsavel').value=o.responsavel||'';}
+  // Eventos
+  document.getElementById('osForm').addEventListener('submit',function(e){e.preventDefault();var d={numero:document.getElementById('os-numero').value.trim(),cliente:document.getElementById('os-cliente').value.trim(),data:document.getElementById('os-data').value,equipamento:document.getElementById('os-equipamento').value.trim(),tag:document.getElementById('os-tag').value.trim(),fabricante:document.getElementById('os-fabricante').value.trim(),modelo:document.getElementById('os-modelo').value.trim(),tipoServico:document.getElementById('os-tipoServico').value.trim()||'Peritagem técnica',responsavel:document.getElementById('os-responsavel').value.trim()};if(!d.numero||!d.cliente||!d.equipamento||!d.responsavel||!d.data){toast('Preencha os campos obrigatórios.','error');return;}OS=d;toast('OS salva!','success');ir(2);});
+  document.getElementById('btnBackTo1').addEventListener('click',function(){ir(1);});
+  document.getElementById('btnGoTo3').addEventListener('click',function(){if(achados.length===0&&!confirm('Sem achados, continuar?'))return;ir(3);});
+  document.getElementById('btnBackTo2').addEventListener('click',function(){ir(2);});
+  document.getElementById('imgDropArea').addEventListener('click',function(){document.getElementById('achado-imagem').click();});
+  document.getElementById('achado-imagem').addEventListener('change',function(e){var file=e.target.files[0];if(!file)return;if(file.size>10*1024*1024){toast('Imagem > 10 MB','error');return;}var reader=new FileReader();reader.onload=function(ev){pendImg=ev.target.result;pendNome=file.name;pendTamanho=file.size;document.getElementById('achadoPreviewImg').src=pendImg;document.getElementById('achadoPreviewMeta').textContent=file.name+' — '+fmtB(file.size);document.getElementById('achadoPreviewWrap').style.display='block';};reader.readAsDataURL(file);});
+  document.getElementById('achadoCancelBtn').addEventListener('click',resetForm);
+  document.getElementById('achadoForm').addEventListener('submit',function(e){e.preventDefault();var tit=document.getElementById('achado-titulo').value.trim();var desc=document.getElementById('achado-descricao').value.trim();if(!tit||!desc){toast('Preencha título e descrição.','error');return;}if(!pendImg){toast('Selecione uma imagem.','error');return;}var obj={titulo:tit,descricao:desc,imagemData:pendImg,imagemNome:pendNome,imagemTamanho:pendTamanho,criadoEm:now()};if(editId){var idx=achados.findIndex(function(a){return a.id===editId;});if(idx>-1){achados[idx]=Object.assign({},obj,{id:editId});}toast('Atualizado!','success');}else{obj.id=nextId++;achados.push(obj);toast('Achado adicionado!','success');}resetForm();renderAchados('achadosListStep2');renderAchados('achadosListStep3');meta();});
+  window.__edit=function(id){var a=achados.find(function(x){return x.id===id;});if(!a)return;editId=id;document.getElementById('achado-titulo').value=a.titulo;document.getElementById('achado-descricao').value=a.descricao;pendImg=a.imagemData;pendNome=a.imagemNome;pendTamanho=a.imagemTamanho;document.getElementById('achadoPreviewImg').src=a.imagemData;document.getElementById('achadoPreviewMeta').textContent=(a.imagemNome||'imagem')+' — '+fmtB(a.imagemTamanho);document.getElementById('achadoPreviewWrap').style.display='block';document.getElementById('achadoSubmitBtn').textContent='💾 Salvar';document.getElementById('achadoCancelBtn').style.display='inline-flex';ir(2);document.getElementById('achadoForm').scrollIntoView({behavior:'smooth'});};
+  window.__remove=function(id){if(!confirm('Remover?'))return;achados=achados.filter(function(a){return a.id!==id;});renderAchados('achadosListStep2');renderAchados('achadosListStep3');meta();toast('Removido','success');};
+  document.getElementById('btnFullReport').addEventListener('click',function(){if(achados.length===0||!OS){toast('Adicione achados e complete a OS.','error');return;}toast('Gerando relatório...','success');var el=document.getElementById('step3');var clone=el.cloneNode(true);clone.querySelectorAll('.btn,.btn-row,.achado-actions,.no-print').forEach(function(el){el.remove();});var wrapper=document.createElement('div');wrapper.style.position='absolute';wrapper.style.left='-9999px';wrapper.style.top='0';wrapper.style.width='800px';wrapper.style.background='#fff';wrapper.style.padding='20px';wrapper.appendChild(clone);document.body.appendChild(wrapper);setTimeout(function(){html2canvas(wrapper,{scale:2,useCORS:true,backgroundColor:'#fff',width:800,logging:false}).then(function(canvas){document.body.removeChild(wrapper);var imgData=canvas.toDataURL('image/jpeg',0.92);var pdf=new jspdf.jsPDF('p','mm','a4');var pw=210,ph=(canvas.height*pw)/canvas.width;var pageH=297,y=0;while(y<pageH){pdf.addImage(imgData,'JPEG',0,y,pw,ph);y+=pageH;if(y<pageH)pdf.addPage();}var pdfBlob=pdf.output('blob');var zip=new JSZip();var num=(OS.numero||'sem_numero').replace(/[^a-zA-Z0-9-_]/g,'');var dt=OS.data||hoje();var base='Relatorio_Peritagem_OS'+num+'_'+dt;zip.file(base+'.pdf',pdfBlob);var imgCount=0;achados.forEach(function(a,i){var dataUrl=a.imagemData;if(!dataUrl)return;var parts=dataUrl.split(',');if(parts.length!==2)return;var mime=parts[0].match(/:(.*?);/)[1];var ext=mime==='image/jpeg'?'jpg':(mime==='image/png'?'png':'img');var tit=(a.titulo||'sem_titulo').replace(/[^a-zA-Z0-9á-üÁ-Ü\-_ ]/g,'').trim().replace(/\s+/g,'_');if(!tit)tit='achado_'+(i+1);zip.file('Imagens/'+tit+'.'+ext,parts[1],{base64:true});imgCount++;});zip.generateAsync({type:'blob'}).then(function(zipBlob){saveAs(zipBlob,base+'.zip');toast('Relatório completo baixado!','success');});}).catch(function(err){toast('Erro ao gerar PDF.','error');});},500);});
+  document.getElementById('btnDownloadImages').addEventListener('click',function(){if(achados.length===0){toast('Sem imagens.','error');return;}var zip=new JSZip();var count=0;achados.forEach(function(a,i){var dataUrl=a.imagemData;if(!dataUrl)return;var parts=dataUrl.split(',');if(parts.length!==2)return;var mime=parts[0].match(/:(.*?);/)[1];var ext=mime==='image/jpeg'?'jpg':(mime==='image/png'?'png':'img');var tit=(a.titulo||'achado_'+i).replace(/[^a-zA-Z0-9á-üÁ-Ü\-_ ]/g,'').trim().replace(/\s+/g,'_');if(!tit)tit='achado_'+(i+1);zip.file(tit+'.'+ext,parts[1],{base64:true});count++;});if(count===0){toast('Nenhuma imagem válida.','error');return;}zip.generateAsync({type:'blob'}).then(function(blob){var num=(OS&&OS.numero)?OS.numero.replace(/[^a-zA-Z0-9-_]/g,''):'sem_numero';saveAs(blob,'Imagens_OS'+num+'.zip');toast(count+' imagens baixadas!','success');});});
+  document.getElementById('btnExportJSON').addEventListener('click',function(){var payload={ordemServico:OS,achados:achados,exportadoEm:now()};var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});var a=document.createElement('a');var num=(OS&&OS.numero)?OS.numero.replace(/[^a-zA-Z0-9-_]/g,''):'sem_numero';a.href=URL.createObjectURL(blob);a.download='Peritagem_OS'+num+'.json';a.click();toast('Backup baixado.','success');});
+  document.getElementById('btnImportJSONTrigger').addEventListener('click',function(){document.getElementById('importJSONInput').click();});
+  document.getElementById('importJSONInput').addEventListener('change',function(e){var file=e.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(ev){try{var data=JSON.parse(ev.target.result);}catch(err){toast('JSON inválido.','error');return;}if(!data.ordemServico){toast('Formato inválido.','error');return;}if(!confirm('Substituir dados atuais?'))return;OS=data.ordemServico;achados=data.achados||[];nextId=achados.reduce(function(max,a){return Math.max(max,a.id||0);},0)+1;fillOS(OS);renderAchados('achadosListStep2');renderAchados('achadosListStep3');meta();toast('Restaurado com sucesso!','success');ir(3);};reader.readAsText(file);e.target.value='';});
+  document.getElementById('btnPrint').addEventListener('click',function(){document.getElementById('step3').classList.add('print-active');window.print();});
+  window.onafterprint=function(){document.querySelectorAll('.step-section').forEach(function(el){el.classList.remove('print-active');});};
+  document.getElementById('btnNewReport').addEventListener('click',function(){if(!confirm('Apagar dados atuais?'))return;OS=null;achados=[];nextId=1;document.getElementById('osForm').reset();document.getElementById('os-data').value=hoje();document.getElementById('os-tipoServico').value='Peritagem técnica';resetForm();renderAchados('achadosListStep2');renderAchados('achadosListStep3');meta();ir(1);toast('Novo relatório iniciado.','success');});
+  // Inicialização
+  document.getElementById('os-data').value=hoje();
   document.getElementById('os-tipoServico').value='Peritagem técnica';
-  // Inicializa contagem e listas
-  updateAchadoCount();
-  renderAchados('achadosListStep2', false);
-  renderAchados('achadosListStep3', true);
-  updateMeta();
-  goToStep(1);
+  atualizarContagem();
+  renderAchados('achadosListStep2');
+  renderAchados('achadosListStep3');
+  meta();
+  ir(1);
 })();
 </script>
 </body>
